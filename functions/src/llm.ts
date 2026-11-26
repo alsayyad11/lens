@@ -46,7 +46,7 @@ export async function llm(cfg: AiCfg, system: string, user: string, maxTokens = 
       return out
     }
     case 'groq': return openAiStyle(f, 'https://api.groq.com/openai/v1/chat/completions', cfg.key, model, system, user, maxTokens, 'Groq')
-    case 'openrouter': return openAiStyle(f, 'https://openrouter.ai/api/v1/chat/completions', cfg.key, model, system, user, maxTokens, 'OpenRouter', { 'x-title': 'LENS' })
+    case 'openrouter': return openAiStyle(f, 'https://openrouter.ai/api/v1/chat/completions', cfg.key, model, system, user, maxTokens, 'OpenRouter', { 'x-title': 'Scoop360' })
     case 'keyless': return openAiStyle(f, 'https://text.pollinations.ai/openai', undefined, model, system, user, maxTokens, 'Pollinations')
     case 'anthropic': {
       const r = await f('https://api.anthropic.com/v1/messages', {

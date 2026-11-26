@@ -1,22 +1,22 @@
-# LENS
+# Scoop360
 
 ## Run it now (no install)
-Open **`LENS.html`** by double-click. It is the whole app in one file and runs in demo mode (data stays in your browser).
-`index.html` in the project root is only the *source* entry of the Vite app. It cannot be opened directly; use `LENS.html`, or:
+Open **`Scoop360.html`** by double-click. It is the whole app in one file and runs in demo mode (data stays in your browser).
+`index.html` in the project root is only the *source* entry of the Vite app. It cannot be opened directly; use `Scoop360.html`, or:
 
 ```
 npm install
 npm run dev          # http://localhost:5173
-npm run build:single # rebuilds LENS.html
+npm run build:single # rebuilds Scoop360.html
 ```
 
 Live demo (GitHub Pages): see the repository's About link.
 
 
 Arabic-first social listening: **Name Lens** (what is said about you), **Field Lens** (what moves in your field),
-**Peer Lens** (what competitors publish), plus Alerts, Reports and Ask LENS.
+**Peer Lens** (what competitors publish), plus Alerts, Reports and Ask Scoop360.
 React + Vite web app, Firebase Auth / Firestore / Hosting, and Cloud Functions that collect and analyze posts.
-The UI follows the "LENS — UI Design v2" Figma file.
+The identity follows the Scoop360 Brand Guidelines v1.0.
 
 ## What is in it
 | Area | What it does |
@@ -26,7 +26,7 @@ The UI follows the "LENS — UI Design v2" Figma file.
 | Lenses | Overview with "what matters today", Name Lens (filters, sentiment by day, top sources, CSV), Field Lens (topics, trends), Peer Lens (share of voice), Your pages |
 | Mention detail | Full post, AI summary and topics, **Draft a reply** (Claude), mark as handled |
 | Alerts and reports | Rules (negative spike, keyword, volume) evaluated live; printable report and CSV |
-| Ask LENS | Claude answers from your own data (falls back to simple rules without AI) |
+| Ask Scoop360 | Claude answers from your own data (falls back to simple rules without AI) |
 | Team | Roles owner / admin / analyst / viewer, invite by email, enforced by Firestore rules |
 | Sources | News (Google News), blog RSS/Atom, X API, Facebook Page, Instagram Business, with status and failure messages |
 | Collection | Cloud Function every 30 minutes and on demand ("Collect now"), de-duplicates, classifies with Claude (lexicon fallback) |
@@ -82,7 +82,7 @@ Tests for the collectors: `cd functions && npm install && npm test`.
 | No key (best effort) | free, may be slow; your mentions are sent to a public endpoint | none |
 | Claude | paid | https://console.anthropic.com |
 
-The key powers Ask LENS, reply drafts and sentiment of collected posts. If the provider fails, LENS tries the no-key endpoint, then the built-in rules. AI is off until you choose a provider. In demo mode the browser calls the provider directly; with Firebase the Cloud Functions do.
+The key powers Ask Scoop360, reply drafts and sentiment of collected posts. If the provider fails, Scoop360 tries the no-key endpoint, then the built-in rules. AI is off until you choose a provider. In demo mode the browser calls the provider directly; with Firebase the Cloud Functions do.
 
 **Free sources (Settings > Sources):** Google News, Bing News, Reddit, Mastodon (hashtags), GDELT, Hacker News. No keys. Reddit can block some cloud IPs; the status line shows it.
 

@@ -16,7 +16,7 @@ export async function askLocalAI(a: AiSettings, profile: Profile | null, posts: 
     `Posts per lens (7d): name ${name.length}, field ${wk.filter((p) => p.lens === 'field').length}, ${peers.map((x) => `${x.name} ${wk.filter((p) => p.peerId === x.id).length}`).join(', ')}.`,
     'Most relevant posts:', ...[...recent].sort((x, y) => (y.urgent ? 1e9 : 0) + y.reach - ((x.urgent ? 1e9 : 0) + x.reach)).slice(0, 25).map(line),
   ].join('\n')
-  const sys = `You are Ask LENS, the analyst inside a social listening product. Answer ONLY from the data provided. If the data cannot answer, say what is missing. Be concise and concrete: numbers, names, and a recommended next step when useful. Answer in ${lang === 'ar' ? 'Arabic' : 'the language of the question'}.`
+  const sys = `You are Ask Scoop360, the analyst inside a social listening product. Answer ONLY from the data provided. If the data cannot answer, say what is missing. Be concise and concrete: numbers, names, and a recommended next step when useful. Answer in ${lang === 'ar' ? 'Arabic' : 'the language of the question'}.`
   return (await llmWithFallback(toCfg(a), sys, `Data:\n${ctx}\n\nQuestion: ${question}`, 700)).text.trim()
 }
 

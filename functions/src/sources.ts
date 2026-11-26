@@ -10,7 +10,7 @@ const arr = <T,>(x: T | T[] | undefined): T[] => (x === undefined ? [] : Array.i
 const txt = (x: any): string => (x == null ? '' : typeof x === 'object' ? String(x['#text'] ?? '') : String(x))
 const strip = (h: string) => h.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/\s+/g, ' ').trim()
 async function getText(f: Fetch, url: string, init?: RequestInit): Promise<string> {
-  const r = await f(url, { ...init, headers: { 'user-agent': 'LENS-listener/1.0', ...(init?.headers || {}) } })
+  const r = await f(url, { ...init, headers: { 'user-agent': 'Scoop360-listener/1.0', ...(init?.headers || {}) } })
   if (!r.ok) throw new Error(`${new URL(url).host} answered ${r.status}`)
   return r.text()
 }

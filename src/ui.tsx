@@ -1,14 +1,43 @@
 import type { ReactNode } from 'react'
-import markUrl from './assets/logo-mark.svg'
+import { Bell, FileText, LayoutDashboard, MessageSquareText, Settings, Sparkles, TrendingUp, Users } from 'lucide-react'
+import enLogo from './assets/logo-en.svg'
+import enLogoRev from './assets/logo-en-reversed.svg'
+import arLogo from './assets/logo-ar.svg'
+import arLogoRev from './assets/logo-ar-reversed.svg'
+import markDark from './assets/mark.svg'
+import markLight from './assets/mark-reversed.svg'
 import type { Post } from './types'
 import { ago, fmt } from './nlp'
 import { useApp } from './store'
 
-export const Logo = ({ light = true }: { light?: boolean }) => (
-  <div className="logo" style={{ color: light ? '#fff' : 'var(--navy)' }}>
-    <img src={markUrl} width="28" height="28" alt="" />LENS
-  </div>
-)
+/** Scoop360 logo. Arabic lockup in Arabic, English otherwise; reversed (white) version on navy. */
+export const Logo = ({ light = true, mark = false, height = 34 }: { light?: boolean; mark?: boolean; height?: number }) => {
+  const { lang } = useApp()
+  const src = mark ? (light ? markLight : markDark) : lang === 'ar' ? (light ? arLogoRev : arLogo) : light ? enLogoRev : enLogo
+  return <img className="brandlogo" src={src} height={height} alt="Scoop360" />
+}
+export const logoDark = { en: enLogo, ar: arLogo }
+
+/** First word Bold, the rest Light (brand two-weight heading). */
+export const TwoWeight = ({ text }: { text: string }) => {
+  const i = text.search(/\s/)
+  if (i < 0) return <>{text}</>
+  return <><b>{text.slice(0, i)}</b>{' '}<span className="lt">{text.slice(i + 1)}</span></>
+}
+
+/** Connected dots: posts, accounts and the links between them. Mostly teal, a few orange. Decorative, navy backgrounds only. */
+export const GridPattern = ({ seed = 7, n = 26 }: { seed?: number; n?: number }) => {
+  let x = seed * 9301 + 49297; const rnd = () => ((x = (x * 9301 + 49297) % 233280) / 233280)
+  const pts = Array.from({ length: n }, () => ({ x: 4 + rnd() * 92, y: 4 + rnd() * 92, o: rnd() > 0.88 }))
+  const lines: [number, number][] = []
+  pts.forEach((a, i) => pts.forEach((b, j) => { if (j > i && Math.hypot(a.x - b.x, a.y - b.y) < 20) lines.push([i, j]) }))
+  return (
+    <svg className="gridpat" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      {lines.map(([i, j]) => <line key={i + '-' + j} x1={pts[i].x} y1={pts[i].y} x2={pts[j].x} y2={pts[j].y} stroke="#2EC4B6" strokeOpacity=".16" strokeWidth=".25" />)}
+      {pts.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r={p.o ? 1.1 : 0.7} fill={p.o ? '#FF6B35' : '#2EC4B6'} fillOpacity={p.o ? 0.9 : 0.5} />)}
+    </svg>
+  )
+}
 export const Field = ({ label, children, error }: { label: string; children: ReactNode; error?: string }) => (
   <div className="field"><label>{label}</label>{children}{error && <div className="err" style={{ margin: '2px 0 0' }}>{error}</div>}</div>
 )
@@ -40,18 +69,13 @@ export const SentimentBars = ({ posts, days = 7 }: { posts: Post[]; days?: numbe
 export const Meter = ({ label, value, color = 'var(--navy)' }: { label: string; value: number; color?: string }) => (
   <div><div className="row2"><span>{label}</span><b>{value}%</b></div><div className="meter"><i style={{ width: value + '%', background: color }} /></div></div>
 )
-export const Empty = () => { const { t } = useApp(); return <div className="empty"><h2>{t('No posts yet')}</h2><p>{t('Add posts or load demo data to see LENS work.')}</p></div> }
+export const Empty = () => { const { t } = useApp(); return <div className="empty"><h2>{t('No posts yet')}</h2><p>{t('Add posts or load demo data to see Scoop360 work.')}</p></div> }
 export const sentimentStats = (ps: Post[]) => {
   const n = ps.length || 1
   return { total: ps.length, reach: ps.reduce((a, p) => a + p.reach, 0), pos: Math.round((ps.filter((p) => p.sentiment === 'positive').length / n) * 100), neg: Math.round((ps.filter((p) => p.sentiment === 'negative').length / n) * 100) }
 }
+const ic = { size: 18, strokeWidth: 1.75 }
 export const ICONS: Record<string, ReactNode> = {
-  overview: <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg>,
-  name: <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 4h12v9H9l-4 3v-3H4z"/></svg>,
-  field: <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M3 14l5-5 3 3 6-6M13 6h4v4"/></svg>,
-  peer: <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6"><circle cx="7.5" cy="10" r="4.5"/><circle cx="12.5" cy="10" r="4.5"/></svg>,
-  alerts: <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M5 14V9a5 5 0 0 1 10 0v5l1.5 2h-13zM8 17a2 2 0 0 0 4 0"/></svg>,
-  reports: <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M5 2h7l4 4v12H5zM12 2v4h4M8 11h5M8 14h5"/></svg>,
-  ask: <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>,
-  settings: <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M3 6h9M15 6h2M3 14h2M8 14h9"/><circle cx="13" cy="6" r="2"/><circle cx="6" cy="14" r="2"/></svg>,
+  overview: <LayoutDashboard {...ic} />, name: <MessageSquareText {...ic} />, field: <TrendingUp {...ic} />, peer: <Users {...ic} />,
+  alerts: <Bell {...ic} />, reports: <FileText {...ic} />, ask: <Sparkles {...ic} />, settings: <Settings {...ic} />,
 }

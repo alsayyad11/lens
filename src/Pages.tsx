@@ -3,9 +3,8 @@ import { backend } from './backend'
 import { askLocalAI } from './ai'
 import { useApp } from './store'
 import { classify, demoPosts, fmt, matchesAny, topWords } from './nlp'
-import { Empty, Field, Meter, PostRow, SentimentBars, sentimentStats } from './ui'
+import { Empty, Field, Meter, PostRow, SentimentBars, GridPattern, TwoWeight, logoDark, sentimentStats } from './ui'
 import { CollectButton, YourPages } from './Pages2'
-import logoUrl from './assets/logo.svg'
 import { Delta, Donut, TopVoices, TrendChart } from './Dash'
 import { SOURCES, type AlertRule, type Lens, type Post, type Source } from './types'
 
@@ -14,7 +13,7 @@ type Range = 1 | 7 | 30
 const useRange = () => { const [r, setR] = useState<Range>(7); return [r, setR] as const }
 const inRange = (ps: Post[], r: Range) => ps.filter((p) => p.ts >= Date.now() - r * DAY)
 const RangePills = ({ r, set }: { r: Range; set: (r: Range) => void }) => { const { t } = useApp(); return <>{([1, 7, 30] as Range[]).map((x) => <button key={x} className={'pill' + (r === x ? ' on' : '')} onClick={() => set(x)}>{t(x === 1 ? 'Today' : x === 7 ? '7 days' : '30 days')}</button>)}</> }
-const Head = ({ eyebrow, title, children }: { eyebrow: string; title: string; children?: ReactNode }) => <div className="head"><div><div className="eyebrow">{eyebrow}</div><h1>{title}</h1></div><div className="row">{children}</div></div>
+const Head = ({ eyebrow, title, children }: { eyebrow: string; title: string; children?: ReactNode }) => <div className="head"><div><div className="eyebrow">{eyebrow}</div><h1><TwoWeight text={title} /></h1></div><div className="row">{children}</div></div>
 
 /* ---------- shared: add a post / paste posts ---------- */
 export function AddPost({ onClose, lens = 'name' }: { onClose: () => void; lens?: Lens }) {
@@ -64,7 +63,7 @@ export function Overview() {
   if (!posts.length) return <><Head eyebrow={new Date().toDateString().toUpperCase()} title={`${greet}, ${profile?.fullName.split(' ')[0] || ''}.`} /><div className="card"><Empty /><SeedButtons /><div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}><CollectButton /></div></div></>
   return (<>
     <Head eyebrow={`${new Date().toDateString().toUpperCase()} · ${t('What matters today')}`} title={`${greet}, ${profile?.fullName.split(' ')[0] || ''}.`}><RangePills r={r} set={setR} /><CollectButton />{canWrite && <button className="btn" onClick={() => setAdd(true)}>{t('Add a post')}</button>}</Head>
-    <div className="hero"><div><div className="eyebrow">{t('What matters today')}</div>
+    <div className="hero"><GridPattern seed={21} n={30} /><div><div className="eyebrow">{t('What matters today')}</div>
       <h2>{top ? (lang === 'ar' ? `أعلى إشارة سلبية: ${top.author} على ${top.source} بوصول ${fmt(top.reach)}. ردّ قبل أن تنتشر.` : `The top negative mention is from ${top.author} on ${top.source} (reach ${fmt(top.reach)}). Reply before it spreads.`) : lang === 'ar' ? 'لا إشارات سلبية في هذه الفترة. حافظ على الزخم.' : 'No negative mentions in this period. Keep the momentum.'}</h2>{top && <div style={{ display: 'flex', gap: 10 }}><button className="btn coral" onClick={() => window.dispatchEvent(new CustomEvent('lens-open-post', { detail: top }))}>{t('Draft a reply')}</button>{top.url && <a className="btn ghost" style={{ color: '#fff', borderColor: 'rgba(255,255,255,.5)', textDecoration: 'none' }} href={top.url} target="_blank" rel="noreferrer">{t('See the thread')}</a>}</div>}</div>
       <div className="kpi"><div><div className="eyebrow">{t('Mentions')}</div><b>{st.total}</b></div><div><div className="eyebrow">{t('Urgent')}</div><b>{urgent.length}</b></div><div><div className="eyebrow">{t('Positive')}</div><b>{st.pos}%</b></div></div></div>
     <div className="grid g4 stats" style={{ margin: '18px 0' }}>
@@ -195,7 +194,7 @@ async function downloadPdf(root: HTMLElement, filename: string) {
   let y = M
   const secs = Array.from(root.querySelectorAll<HTMLElement>('.rsec'))
   for (const el of secs) {
-    const c = await html2canvas(el, { scale: 2, backgroundColor: '#FFFBF4', useCORS: true, logging: false })
+    const c = await html2canvas(el, { scale: 2, backgroundColor: '#FFFFFF', useCORS: true, logging: false })
     const w = PW - 2 * M, h = (c.height / c.width) * w
     if (y + h > PH - M && y > M) { pdf.addPage(); y = M }
     if (h > PH - 2 * M) { // taller than a page: slice it
@@ -209,7 +208,7 @@ async function downloadPdf(root: HTMLElement, filename: string) {
     } else { pdf.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', M, y, w, h); y += h + 6 }
   }
   const n = pdf.getNumberOfPages()
-  for (let i = 1; i <= n; i++) { pdf.setPage(i); pdf.setFontSize(8); pdf.setTextColor(120); pdf.text(`LENS · ${i} / ${n}`, PW / 2, PH - 12, { align: 'center' }) }
+  for (let i = 1; i <= n; i++) { pdf.setPage(i); pdf.setFontSize(8); pdf.setTextColor(120); pdf.text(`Scoop360 · ${i} / ${n}`, PW / 2, PH - 12, { align: 'center' }) }
   pdf.save(filename)
 }
 
@@ -232,20 +231,20 @@ export function Reports() {
   return (<>
     <Head eyebrow="" title={t('Reports')}><RangePills r={r} set={setR} /><button className="btn ghost noprint" onClick={() => exportCsv(inRange(posts, r))}>{t('Download CSV')}</button><button className="btn ghost noprint" onClick={() => window.print()}>{t('Print or save as PDF')}</button><button className="btn coral noprint" disabled={busy || !posts.length} onClick={pdf}>{busy ? t('Building the PDF…') : t('Download PDF')}</button></Head>
     {err && <div className="err">{err}</div>}
-    <div id="report" className="card" style={{ background: '#FFFBF4' }}>
-      <div className="rsec" style={{ padding: '4px 4px 14px' }}><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><img src={logoUrl} alt="LENS" height="40" /><div className="eyebrow" style={{ textAlign: 'end' }}>{profile?.orgName}<br />{period}</div></div>
+    <div id="report" className="card" style={{ background: '#FFFFFF' }}>
+      <div className="rsec" style={{ padding: '4px 4px 14px' }}><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><img src={lang === 'ar' ? logoDark.ar : logoDark.en} alt="Scoop360" height="40" /><div className="eyebrow" style={{ textAlign: 'end' }}>{profile?.orgName}<br />{period}</div></div>
         <h1 style={{ margin: '20px 0 4px' }}>{t('Overview')}</h1><div className="muted">{t('Key numbers')} · {t(r === 1 ? 'Today' : r === 7 ? '7 days' : '30 days')}</div></div>
       <div className="rsec" style={{ padding: 4 }}><div className="grid g4 stats">{[{ k: 'Mentions', v: String(st.total), d: <Delta cur={st.total} prev={prevSt.total} /> }, { k: 'Reach', v: fmt(st.reach), d: <Delta cur={st.reach} prev={prevSt.reach} /> }, { k: 'Positive', v: st.pos + '%', d: <Delta cur={st.pos} prev={prevSt.pos} /> }, { k: 'Negative', v: st.neg + '%', d: <Delta cur={st.neg} prev={prevSt.neg} goodWhenUp={false} /> }].map((c) => <div key={c.k}><div className="eyebrow">{t(c.k)}</div><span className="big">{c.v}</span><br />{c.d}</div>)}</div></div>
       <div className="rsec" style={{ padding: '18px 4px' }}><h2 style={{ marginBottom: 10 }}>{t('Trend')}</h2><TrendChart posts={name} days={r === 1 ? 7 : Math.min(r, 30)} /></div>
       <div className="rsec" style={{ padding: '18px 4px' }}><div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 28 }}><div><h2 style={{ marginBottom: 12 }}>{t('Sentiment mix')}</h2><Donut posts={name} /></div><div><h2 style={{ marginBottom: 12 }}>{t('Share of voice')}</h2>{v.map((x, i) => <Meter key={x.name} label={x.name} value={x.pct} color={['var(--navy)', 'var(--s2)', 'var(--neu)'][i % 3]} />)}</div></div></div>
       <div className="rsec" style={{ padding: '18px 4px' }}><h2 style={{ marginBottom: 10 }}>{t('Trending in your field')}</h2>{words.length ? words.map((w) => <span className="chip" key={w.word} style={{ padding: '5px 12px' }}>{w.word} · {w.count}</span>) : <p className="muted">—</p>}</div>
       <div className="rsec" style={{ padding: '18px 4px' }}><h2 style={{ marginBottom: 4 }}>{t('Needs a reply')}</h2>{urgent.length ? urgent.map((p) => <PostRow key={p.id} p={p} />) : <p className="muted">{t('Nothing urgent.')}</p>}</div>
-      <div className="rsec" style={{ padding: '18px 4px' }}><h2 style={{ marginBottom: 4 }}>{t('Top mentions')}</h2>{top.length ? top.map((p) => <PostRow key={p.id} p={p} />) : <p className="muted">—</p>}<div className="muted" style={{ fontSize: 11, marginTop: 14 }}>{t('Generated by LENS')} · {new Date().toLocaleString(lang === 'ar' ? 'ar-EG' : 'en')}</div></div>
+      <div className="rsec" style={{ padding: '18px 4px' }}><h2 style={{ marginBottom: 4 }}>{t('Top mentions')}</h2>{top.length ? top.map((p) => <PostRow key={p.id} p={p} />) : <p className="muted">—</p>}<div className="muted" style={{ fontSize: 11, marginTop: 14 }}>{t('Generated by Scoop360')} · {new Date().toLocaleString(lang === 'ar' ? 'ar-EG' : 'en')}</div></div>
     </div>
   </>)
 }
 
-/* ---------- Ask LENS ---------- */
+/* ---------- Ask Scoop360 ---------- */
 export function Ask() {
   const { t, profile, posts, peers, lang, wsId, ai } = useApp()
   const [q, setQ] = useState(''); const [a, setA] = useState(''); const [busy, setBusy] = useState(false); const [via, setVia] = useState('')
@@ -271,7 +270,7 @@ export function Ask() {
   }
   const examples = lang === 'ar' ? ['ما الشكاوى هذا الأسبوع؟', 'ما حصة الصوت مقابل المنافسين؟', 'ما الرائج في مجالي؟'] : ['What are the complaints this week?', 'What is my share of voice against peers?', 'What is trending in my field?']
   return (<>
-    <Head eyebrow="" title={t('Ask LENS')} />
+    <Head eyebrow="" title={t('Ask Scoop360')} />
     <div className="card"><h2 style={{ marginBottom: 12 }}>{t('Ask anything about your data')}</h2>
       <div style={{ display: 'flex', gap: 8 }}><input value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && ask(q)} /><button className="btn coral" disabled={busy} onClick={() => ask(q)}>{busy ? '…' : t('Ask')}</button></div>
       <div style={{ marginTop: 12 }}>{examples.map((e) => <button className="pill" key={e} style={{ marginInlineEnd: 8, marginBottom: 8 }} onClick={() => { setQ(e); ask(e) }}>{e}</button>)}</div>

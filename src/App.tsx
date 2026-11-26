@@ -10,12 +10,12 @@ import { ICONS, Logo } from './ui'
 
 function Layout() {
   const { t, profile, user } = useApp()
-  const items: [string, string, string][] = [['/', 'Overview', 'overview'], ['/name', 'Name Lens', 'name'], ['/field', 'Field Lens', 'field'], ['/peer', 'Peer Lens', 'peer'], ['/alerts', 'Alerts', 'alerts'], ['/reports', 'Reports', 'reports'], ['/ask', 'Ask LENS', 'ask']]
+  const items: [string, string, string][] = [['/', 'Overview', 'overview'], ['/name', 'Name Lens', 'name'], ['/field', 'Field Lens', 'field'], ['/peer', 'Peer Lens', 'peer'], ['/alerts', 'Alerts', 'alerts'], ['/reports', 'Reports', 'reports'], ['/ask', 'Ask Scoop360', 'ask']]
   const ini = (s?: string) => (s || '?').split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
   return (
     <div className="shell">
-      <aside className="side"><Logo />
-        <div className="ws"><div className="av">{ini(profile?.orgName)[0]}</div><div><b>{profile?.orgName}</b><small style={{ display: 'block', color: '#aeb7cc' }}>{profile?.accountType === 'company' ? 'Company workspace' : 'Personal workspace'}</small></div></div>
+      <aside className="side"><Logo height={32} />
+        <div className="ws"><div className="av">{ini(profile?.orgName)[0]}</div><div><b>{profile?.orgName}</b><small style={{ display: 'block', color: '#9FB0C8' }}>{profile?.accountType === 'company' ? 'Company workspace' : 'Personal workspace'}</small></div></div>
         {items.map(([to, label, ic]) => <NavLink key={to} to={to} end={to === '/'} className={({ isActive }) => 'nav' + (isActive ? ' active' : '')}>{ICONS[ic]}{t(label)}</NavLink>)}
         <div className="sp" />
         <NavLink to="/settings" className={({ isActive }) => 'nav' + (isActive ? ' active' : '')}>{ICONS.settings}{t('Settings')}</NavLink>
@@ -32,10 +32,10 @@ function Layout() {
 
 export default function App() {
   const { user, ready, profile } = useApp()
-  if (!ready) return <div style={{ padding: 40 }}>…</div>
+  if (!ready) return <div className="boot"><Logo mark light={false} height={56} /></div>
   if (!user) return <Routes><Route path="/signup" element={<SignUp />} /><Route path="/reset" element={<Reset />} /><Route path="*" element={<SignIn />} /></Routes>
   if (backend.mode === 'firebase' && !user.emailVerified) return <Verify />
-  if (!profile) return <div style={{ padding: 40 }}>…</div>
+  if (!profile) return <div className="boot"><Logo mark light={false} height={56} /></div>
   if (!profile.setupDone) return <Routes><Route path="/setup" element={<Setup />} /><Route path="*" element={<Navigate to="/setup" />} /></Routes>
   return <Layout />
 }

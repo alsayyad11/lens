@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { backend } from './backend'
 import { useApp } from './store'
-import { Field, Logo } from './ui'
+import { Field, GridPattern, Logo, TwoWeight } from './ui'
 import type { AccountType } from './types'
 
 const msg = (e: any, t: (s: string) => string) => e?.code === 'auth/email-already-in-use' ? t('This email already has an account.') : e?.code === 'auth/weak-password' ? t('Password must be at least 6 characters.') : e?.code === 'auth/invalid-email' ? 'Invalid email.' : t('Wrong email or password. Try again.')
@@ -10,8 +10,8 @@ const msg = (e: any, t: (s: string) => string) => e?.code === 'auth/email-alread
 function Art() {
   const { t } = useApp()
   return (
-    <div className="auth-art"><Logo />
-      <div><h1>{t('Every mention.')}<br />{t('Every shift.')}<br />{t('Every rival.')}</h1><p>{t('Arabic-first social listening that reads the whole conversation, then tells you what matters.')}</p></div>
+    <div className="auth-art"><GridPattern seed={11} n={34} /><Logo height={40} />
+      <div style={{ position: 'relative' }}><h1><TwoWeight text={t('Hear the market.')} /><br /><TwoWeight text={t('Know what to do now.')} /></h1><p>{t('Arabic-first social listening that reads the whole conversation, then tells you what matters.')}</p></div>
       <ul><li><b>NAME LENS</b>{t('What is said about you, everywhere')}</li><li><b>FIELD LENS</b>{t('What is moving in the field you choose')}</li><li><b>PEER LENS</b>{t('What competitors publish and how it lands')}</li></ul>
     </div>
   )
@@ -50,7 +50,7 @@ export function SignUp() {
     <Shell progress={step === 0 ? 25 : 50}>
       <div className="topline"><span>{t('Already with us?')}&nbsp;<Link to="/signin">{t('Sign in')}</Link></span>&nbsp;&nbsp;<button className="pill" onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}>{lang === 'en' ? 'العربية' : 'English'}</button></div>
       {step === 0 ? (<>
-        <h1>{t('Who is LENS watching for?')}</h1><p className="muted" style={{ marginTop: 8 }}>{t('This choice is permanent. The account type cannot be changed after sign-up.')}</p>
+        <h1>{t('Who is Scoop360 watching for?')}</h1><p className="muted" style={{ marginTop: 8 }}>{t('This choice is permanent. The account type cannot be changed after sign-up.')}</p>
         <div className="types">
           <button className={'type' + (type === 'company' ? ' on' : '')} onClick={() => setType('company')}><span className="eyebrow" style={{ color: 'var(--coral)' }}>B2B · {lang === 'ar' ? 'شركة' : 'COMPANY'}</span><h2>{t('A company')}</h2><p>{t('Brands, agencies and teams that protect a reputation and outpace a market.')}</p></button>
           <button className={'type' + (type === 'individual' ? ' on' : '')} onClick={() => setType('individual')}><span className="eyebrow" style={{ color: 'var(--coral)' }}>B2C · {lang === 'ar' ? 'فرد' : 'INDIVIDUAL'}</span><h2>{t('Just me')}</h2><p>{t('Creators, executives, public figures and freelancers who are their own brand.')}</p></button>

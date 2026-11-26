@@ -70,7 +70,7 @@ export const ask = onCall({ timeoutSeconds: 90 }, async (req) => {
     `Posts per lens (7d): name ${name.length}, field ${wk.filter((p) => p.lens === 'field').length}, ${[...peers].map(([id, n]) => `${n} ${wk.filter((p) => p.peerId === id).length}`).join(', ')}.`,
     'Most relevant posts:', ...posts.sort((a, b) => (b.urgent ? 1e9 : 0) + b.reach - ((a.urgent ? 1e9 : 0) + a.reach)).slice(0, 25).map(line),
   ].join('\n')
-  const sys = `You are Ask LENS, the analyst inside a social listening product. Answer ONLY from the data provided. If the data cannot answer, say what is missing. Be concise and concrete: numbers, names, and a recommended next step when useful. Answer in ${lang === 'ar' ? 'Arabic' : 'the language of the question'}.`
+  const sys = `You are Ask Scoop360, the analyst inside a social listening product. Answer ONLY from the data provided. If the data cannot answer, say what is missing. Be concise and concrete: numbers, names, and a recommended next step when useful. Answer in ${lang === 'ar' ? 'Arabic' : 'the language of the question'}.`
   try { const r = await llmWithFallback(await aiConfig(ws), sys, `Data:\n${ctx}\n\nQuestion: ${question}`, 700); return { answer: r.text.trim(), provider: r.provider } }
   catch (e) { throw new HttpsError('unavailable', 'AI unavailable: ' + (e as Error).message) }
 })
