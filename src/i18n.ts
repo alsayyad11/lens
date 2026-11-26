@@ -1,6 +1,6 @@
 // English is the source language; Arabic is looked up by the English phrase.
 export const AR: Record<string, string> = {
-  'Theme': 'المظهر', 'Light': 'فاتح', 'Dark': 'داكن', 'Know first.': 'اعرف السالفة قبل غيرك،', 'See everything.': 'وشوفها من كل الجهات.',
+  'Theme': 'المظهر', 'This page does not exist. Go back to the overview to keep listening.': 'الصفحة دي مش موجودة. ارجع لنظرة عامة وكمّل متابعتك.', 'Back to overview': 'رجوع لنظرة عامة', 'Skip to content': 'تخطي إلى المحتوى', 'Light': 'فاتح', 'Dark': 'داكن', 'Know first.': 'اعرف السالفة قبل غيرك،', 'See everything.': 'وشوفها من كل الجهات.',
   'Answered with built-in rules. Turn on a free AI provider in Settings > AI for full answers.': 'تمت الإجابة بالقواعد المدمجة. فعّل مزود ذكاء اصطناعي مجاني من الإعدادات > الذكاء الاصطناعي لإجابات كاملة.', 'The AI provider did not answer, so built-in rules were used. Check Settings > AI.': 'لم يرد مزود الذكاء الاصطناعي فتم استخدام القواعد المدمجة. راجع الإعدادات > الذكاء الاصطناعي.',
   'AI': 'الذكاء الاصطناعي', 'AI provider': 'مزود الذكاء الاصطناعي', 'Provider': 'المزود', 'API key': 'مفتاح API', 'Model (optional)': 'النموذج (اختياري)', 'Get a key': 'احصل على مفتاح', 'Test connection': 'اختبار الاتصال', 'Works': 'يعمل', 'Saved': 'تم الحفظ', 'Choose a provider first.': 'اختر مزوداً أولاً.',
   'Only owners and admins can manage AI settings.': 'المالك والمديرون فقط يديرون إعدادات الذكاء الاصطناعي.', 'How it is used': 'كيف يُستخدم',
