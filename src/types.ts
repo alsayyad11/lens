@@ -4,7 +4,10 @@ export type Lens = 'name' | 'field' | 'peer'
 export type Source = 'X' | 'Facebook' | 'Instagram' | 'LinkedIn' | 'News' | 'Blogs' | 'Reddit' | 'Mastodon' | 'Web'
 export const SOURCES: Source[] = ['X', 'Facebook', 'Instagram', 'LinkedIn', 'News', 'Blogs', 'Reddit', 'Mastodon', 'Web']
 
+export type Plan = 'basic' | 'pro' | 'business'
 export interface Profile {
+  plan?: Plan
+  industry?: string // B2B: the market the company is in. B2C: the creator's niche
   accountType: AccountType
   fullName: string
   orgName: string // company name, or the person's public name

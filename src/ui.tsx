@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Bell, FileText, LayoutDashboard, MessageSquareText, Settings, Sparkles, TrendingUp, Users } from 'lucide-react'
+import { Bell, Gem, FileText, LayoutDashboard, MessageSquareText, Settings, Sparkles, TrendingUp, Users } from 'lucide-react'
 import enLogo from './assets/logo-en.svg'
 import enLogoRev from './assets/logo-en-reversed.svg'
 import arLogo from './assets/logo-ar.svg'
@@ -73,5 +73,5 @@ export const sentimentStats = (ps: Post[]) => {
 const ic = { size: 18, strokeWidth: 1.75 }
 export const ICONS: Record<string, ReactNode> = {
   overview: <LayoutDashboard {...ic} />, name: <MessageSquareText {...ic} />, field: <TrendingUp {...ic} />, peer: <Users {...ic} />,
-  alerts: <Bell {...ic} />, reports: <FileText {...ic} />, ask: <Sparkles {...ic} />, settings: <Settings {...ic} />,
+  alerts: <Bell {...ic} />, reports: <FileText {...ic} />, ask: <Sparkles {...ic} />, settings: <Settings {...ic} />, plans: <Gem {...ic} />,
 }

@@ -24,3 +24,13 @@ export async function draftLocalAI(a: AiSettings, p: Post, brand: string, lang: 
   const sys = `You write short public replies for the brand "${brand}" on ${p.source}. Match the language and dialect of the post (Egyptian Arabic stays Egyptian). Be warm, human, specific, never defensive. If the post is negative, apologize once, own the issue, and move to a private channel. If positive, thank them briefly. Max 45 words. No hashtags, no emojis unless the post uses them. Output only the reply.`
   return (await llmWithFallback(toCfg(a), sys, `Author: ${p.author}\nSentiment: ${p.sentiment}\nPost: ${p.text}\nReply language hint: ${lang}`, 300)).text.trim()
 }
+
+const parseJson = <T,>(txt: string): T | null => { const m = txt.match(/\[[\s\S]*\]/); if (!m) return null; try { return JSON.parse(m[0]) as T } catch { return null } }
+
+export async function suggestPeersAI(a: AiSettings, profile: Profile | null, peers: Peer[], lang: string): Promise<{ name: string; why: string }[]> {
+  const indiv = profile?.accountType === 'individual'
+  const sys = `You help a ${indiv ? 'content creator or public figure' : 'company'} choose ${indiv ? 'similar creators' : 'competitors'} to monitor. Reply with ONLY a JSON array of 5 objects {"name": string, "why": string}. Use real, well known names in the same market and region. "why" is one short sentence in ${lang === 'ar' ? 'Egyptian Arabic' : 'English'}. Never repeat the names already followed.`
+  const user = `Name: ${profile?.orgName}. Field: ${profile?.industry || ''} ${(profile?.topics || []).join(', ')}. Already followed: ${peers.map((p) => p.name).join(', ') || 'none'}.`
+  const r = parseJson<{ name: string; why: string }[]>((await llmWithFallback(toCfg(a), sys, user, 500)).text)
+  return (r || []).filter((x) => x?.name).slice(0, 5)
+}

@@ -6,6 +6,7 @@ import { SignIn, SignUp, Reset, Verify } from './Auth'
 import Setup from './Setup'
 import { Alerts, Ask, FieldLens, NameLens, Overview, PeerLens, Reports } from './Pages'
 import { MentionHost, SettingsPage } from './Pages2'
+import { PlansPage } from './Pages3'
 import { ICONS, Logo } from './ui'
 
 function Layout() {
@@ -18,13 +19,14 @@ function Layout() {
         <div className="ws"><div className="av">{ini(profile?.orgName)[0]}</div><div><b>{profile?.orgName}</b><small style={{ display: 'block', color: '#9FB0C8' }}>{profile?.accountType === 'company' ? 'Company workspace' : 'Personal workspace'}</small></div></div>
         {items.map(([to, label, ic]) => <NavLink key={to} to={to} end={to === '/'} className={({ isActive }) => 'nav' + (isActive ? ' active' : '')}>{ICONS[ic]}{t(label)}</NavLink>)}
         <div className="sp" />
+         <NavLink to="/plans" className={({ isActive }) => 'nav' + (isActive ? ' active' : '')}>{ICONS.plans}{t('Plans')}</NavLink>
         <NavLink to="/settings" className={({ isActive }) => 'nav' + (isActive ? ' active' : '')}>{ICONS.settings}{t('Settings')}</NavLink>
         <div className="me"><div className="av">{ini(profile?.fullName)}</div><div style={{ flex: 1 }}><b>{profile?.fullName}</b><small>{user?.email}</small></div><button className="nav" style={{ width: 'auto', padding: 6 }} onClick={() => backend.signOut()} title={t('Sign out')}>⏻</button></div>
       </aside>
       <a className="skip" href="#content">{t('Skip to content')}</a>
       <main className="main" id="content">
         {!firebaseConfigured && <div className="banner noprint">Demo mode: data is stored in this browser only. Add the Firebase keys to .env to use the cloud.</div>}
-        <Routes><Route path="/" element={<Overview />} /><Route path="/name" element={<NameLens />} /><Route path="/field" element={<FieldLens />} /><Route path="/peer" element={<PeerLens />} /><Route path="/alerts" element={<Alerts />} /><Route path="/reports" element={<Reports />} /><Route path="/ask" element={<Ask />} /><Route path="/settings" element={<SettingsPage />} /><Route path="*" element={<NotFound />} /></Routes>
+        <Routes><Route path="/" element={<Overview />} /><Route path="/name" element={<NameLens />} /><Route path="/field" element={<FieldLens />} /><Route path="/peer" element={<PeerLens />} /><Route path="/alerts" element={<Alerts />} /><Route path="/reports" element={<Reports />} /><Route path="/ask" element={<Ask />} /><Route path="/plans" element={<PlansPage />} /><Route path="/settings" element={<SettingsPage />} /><Route path="*" element={<NotFound />} /></Routes>
       </main>
       <MentionHost />
     </div>

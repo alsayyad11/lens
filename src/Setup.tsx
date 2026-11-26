@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { backend } from './backend'
 import { useApp } from './store'
 import { Field, GridPattern, Logo } from './ui'
+import { planOf } from './plans'
 import { SOURCES, type Source } from './types'
 
 const Chips = ({ items, onRemove }: { items: string[]; onRemove: (s: string) => void }) => (
@@ -20,7 +21,7 @@ export default function Setup() {
   const [links, setLinks] = useState<Partial<Record<Source, string>>>({})
   const indiv = profile?.accountType === 'individual'
   const add = (list: string[], set: (l: string[]) => void) => { const v = draft.trim(); if (v && !list.includes(v)) set([...list, v]); setDraft('') }
-  const addPeer = async () => { if (!wsId || !peerName.trim()) return; await backend.add(wsId, 'peers', { name: peerName.trim(), links }); setPeerName(''); setLinks({}) }
+  const addPeer = async () => { if (!wsId || !peerName.trim() || peers.length >= planOf(profile?.plan).peers) return; await backend.add(wsId, 'peers', { name: peerName.trim(), links }); setPeerName(''); setLinks({}) }
   const finish = async () => { await saveProfile({ handles, topics, setupDone: true }); nav('/') }
   const next = async () => { if (step === 0) await saveProfile({ handles }); if (step === 1) await saveProfile({ topics }); setStep(step + 1); setDraft('') }
   const titles = [t('Set up Name Lens'), t('Set up Field Lens'), t('Set up Peer Lens')]

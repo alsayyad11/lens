@@ -96,8 +96,8 @@ input:focus,select:focus,textarea:focus{outline:2px solid var(--teal);outline-of
 .banner{background:#E8EEFF;color:#0E1F5A;border:1px solid #C9D6FF}
 .post .meta b{color:var(--navy)}
 .bar span{border-radius:4px}
-.next{background:#fff;border:1px solid var(--line);border-inline-start:4px solid var(--teal)}
-.next:nth-child(3n+1){border-inline-start-color:var(--coral)}
+.next{background:var(--cream);border:1px solid var(--line);border-radius:8px;padding:12px}
+
 .eyebrow{font-weight:500;color:var(--muted)}
 .boot{display:grid;place-items:center;height:100vh;background:var(--cream)}.boot img{animation:pulse 1.4s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:.35;transform:scale(.96)}50%{opacity:1;transform:scale(1)}}
@@ -164,3 +164,9 @@ em,i{font-style:normal}
 .nf{display:grid;place-items:center;gap:16px;text-align:center;padding:96px 16px}.nf h1{font-size:48px;line-height:1}.nf p{max-width:420px;color:var(--muted)}
 .empty{display:grid;gap:8px;place-items:center;text-align:center;padding:48px 24px;border:1px dashed var(--line);border-radius:16px}
 @media (prefers-reduced-motion:reduce){.main>*{animation:none!important}.btn:hover,.btn:active{transform:none!important}}
+
+/* Plans and gated cards */
+.locked{border-style:dashed;background:transparent;box-shadow:none}
+.plan{display:flex;flex-direction:column;gap:16px}.plan.current{border-color:var(--coral);box-shadow:0 0 0 1px var(--coral)}
+.planlist{list-style:none;padding:0;margin:0;display:grid;gap:12px;flex:1}.planlist li{display:flex;gap:8px;align-items:flex-start}.planlist svg{flex:none;color:var(--ok);margin-top:3px}
+.banner a{font-weight:600}

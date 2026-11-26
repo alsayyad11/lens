@@ -1,10 +1,13 @@
 import { useMemo, useState, type ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import { backend } from './backend'
 import { askLocalAI } from './ai'
 import { useApp } from './store'
 import { classify, demoPosts, fmt, matchesAny, topWords } from './nlp'
 import { Empty, Field, Meter, PostRow, SentimentBars, GridPattern, TwoWeight, logoDark, sentimentStats } from './ui'
 import { CollectButton, YourPages } from './Pages2'
+import { DayBrief, GrowthActions, PeerSuggestions } from './Pages3'
+import { can, planOf } from './plans'
 import { Delta, Donut, TopVoices, TrendChart } from './Dash'
 import { SOURCES, type AlertRule, type Lens, type Post, type Source } from './types'
 
@@ -63,6 +66,7 @@ export function Overview() {
   if (!posts.length) return <><Head eyebrow={new Date().toDateString().toUpperCase()} title={`${greet}, ${profile?.fullName.split(' ')[0] || ''}.`} /><div className="card"><Empty /><SeedButtons /><div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}><CollectButton /></div></div></>
   return (<>
     <Head eyebrow={`${new Date().toDateString().toUpperCase()} · ${t('What matters today')}`} title={`${greet}, ${profile?.fullName.split(' ')[0] || ''}.`}><RangePills r={r} set={setR} /><CollectButton />{canWrite && <button className="btn" onClick={() => setAdd(true)}>{t('Add a post')}</button>}</Head>
+    <DayBrief />
     <div className="hero"><GridPattern seed={21} n={30} /><div><div className="eyebrow">{t('What matters today')}</div>
       <h2>{top ? (lang === 'ar' ? `أعلى إشارة سلبية: ${top.author} على ${top.source} بوصول ${fmt(top.reach)}. ردّ قبل أن تنتشر.` : `The top negative mention is from ${top.author} on ${top.source} (reach ${fmt(top.reach)}). Reply before it spreads.`) : lang === 'ar' ? 'لا إشارات سلبية في هذه الفترة. حافظ على الزخم.' : 'No negative mentions in this period. Keep the momentum.'}</h2>{top && <div style={{ display: 'flex', gap: 10 }}><button className="btn coral" onClick={() => window.dispatchEvent(new CustomEvent('lens-open-post', { detail: top }))}>{t('Draft a reply')}</button>{top.url && <a className="btn ghost" style={{ color: '#fff', borderColor: 'rgba(255,255,255,.5)', textDecoration: 'none' }} href={top.url} target="_blank" rel="noreferrer">{t('See the thread')}</a>}</div>}</div>
       <div className="kpi"><div><div className="eyebrow">{t('Mentions')}</div><b>{st.total}</b></div><div><div className="eyebrow">{t('Urgent')}</div><b>{urgent.length}</b></div><div><div className="eyebrow">{t('Positive')}</div><b>{st.pos}%</b></div></div></div>
@@ -124,20 +128,22 @@ function exportCsv(ps: Post[]) {
 /* ---------- Field Lens ---------- */
 export function FieldLens() {
   const { t, profile, posts, saveProfile, canWrite } = useApp()
-  const [r, setR] = useRange(); const [draft, setDraft] = useState(''); const [add, setAdd] = useState(false)
+  const [r, setR] = useRange(); const [draft, setDraft] = useState(''); const [add, setAdd] = useState(false); const [limit, setLimit] = useState(false)
   const topics = profile?.topics || []
   const fp = inRange(posts.filter((p) => p.lens === 'field'), r)
   const prev = posts.filter((p) => p.lens === 'field' && p.ts < Date.now() - r * DAY && p.ts >= Date.now() - 2 * r * DAY)
   const rows = topics.map((tp) => { const n = fp.filter((p) => matchesAny(p.text, [tp])).length, o = prev.filter((p) => matchesAny(p.text, [tp])).length; return { tp, n, d: o ? Math.round(((n - o) / o) * 100) : n ? 100 : 0 } }).sort((a, b) => b.n - a.n)
   const words = topWords(fp.map((p) => p.text), 8)
-  const addTopic = async () => { const v = draft.trim(); if (v && !topics.includes(v)) await saveProfile({ topics: [...topics, v] }); setDraft('') }
+  const addTopic = async () => { const v = draft.trim(); if (v && topics.length >= planOf(profile?.plan).topics) { setLimit(true); return } if (v && !topics.includes(v)) await saveProfile({ topics: [...topics, v] }); setDraft('') }
 
   return (<>
     <Head eyebrow={t('What is moving in the field you choose').toUpperCase()} title={t('Field Lens')}><RangePills r={r} set={setR} /><CollectButton />{canWrite && <button className="btn" onClick={() => setAdd(true)}>{t('Add a post')}</button>}</Head>
+    {limit && <div className="banner">{t('Your plan is at its topic limit.')} <Link to="/plans">{t('See plans')}</Link></div>}
     <div className="grid g2"><div className="card"><h2 style={{ marginBottom: 12 }}>{t('Topics you follow')}</h2>
       <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}><input value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addTopic()} placeholder="#hashtag or keyword" /><button className="btn" onClick={addTopic}>{t('Add')}</button></div>
       {rows.length ? <table><tbody>{rows.map((x) => <tr key={x.tp}><td><b>{x.tp}</b></td><td>{x.n} {t('Mentions')}</td><td style={{ color: x.d >= 0 ? 'var(--ok)' : 'var(--err)' }}>{x.d >= 0 ? '+' : ''}{x.d}%</td><td><button className="chip" style={{ border: 0 }} onClick={() => saveProfile({ topics: topics.filter((z) => z !== x.tp) })}>×</button></td></tr>)}</tbody></table> : <p className="muted">—</p>}</div>
       <div className="card"><h2 style={{ marginBottom: 12 }}>{t('Trending in your field')}</h2>{words.length ? words.map((w) => <div className="row2" key={w.word} style={{ padding: '10px 0', borderBottom: '1px solid var(--line)' }}><span>{w.word}</span><b>{w.count}</b></div>) : <Empty />}</div></div>
+    <div style={{ marginTop: 18 }}><GrowthActions /></div>
     <div className="card" style={{ marginTop: 18 }}><h2>{t('Field Lens')}</h2>{fp.slice(0, 20).map((p) => <PostRow key={p.id} p={p} />)}</div>
     {add && <AddPost onClose={() => setAdd(false)} lens="field" />}
   </>)
@@ -146,14 +152,16 @@ export function FieldLens() {
 /* ---------- Peer Lens ---------- */
 export function PeerLens() {
   const { t, wsId, profile, posts, peers, canWrite } = useApp()
-  const [r, setR] = useRange(); const [name, setName] = useState(''); const [links, setLinks] = useState<Partial<Record<Source, string>>>({}); const [add, setAdd] = useState(false)
+  const [r, setR] = useRange(); const [name, setName] = useState(''); const [links, setLinks] = useState<Partial<Record<Source, string>>>({}); const [add, setAdd] = useState(false); const [limit, setLimit] = useState(false)
   const v = voice(posts, peers, profile?.orgName || t('You'), r)
-  const addPeer = async () => { if (!wsId || !name.trim()) return; await backend.add(wsId, 'peers', { name: name.trim(), links }); setName(''); setLinks({}) }
+  const addPeer = async () => { if (!wsId || !name.trim()) return; if (peers.length >= planOf(profile?.plan).peers) { setLimit(true); return }; await backend.add(wsId, 'peers', { name: name.trim(), links }); setName(''); setLinks({}) }
   return (<>
     <Head eyebrow={t('What competitors publish and how it lands').toUpperCase()} title={t('Peer Lens')}><RangePills r={r} set={setR} /><CollectButton />{canWrite && <button className="btn" onClick={() => setAdd(true)} disabled={!peers.length}>{t('Add a post')}</button>}</Head>
+    {limit && <div className="banner">{t('Your plan is at its rival limit.')} <Link to="/plans">{t('See plans')}</Link></div>}
     <div className="grid g2"><div className="card"><h2 style={{ marginBottom: 14 }}>{t('Share of voice')}</h2>{v.map((x, i) => <Meter key={x.name} label={x.name === (profile?.orgName || '') ? `${t('You')} · ${x.name}` : x.name} value={x.pct} color={['var(--navy)', 'var(--s2)', 'var(--neu)'][i % 3]} />)}</div>
       <div className="card"><h2 style={{ marginBottom: 12 }}>{t('Add a peer')}</h2><Field label={t('Peer name')}><input value={name} onChange={(e) => setName(e.target.value)} /></Field>
         {SOURCES.filter((s) => s !== 'News').map((s) => <Field key={s} label={s}><input placeholder="https://" value={links[s] || ''} onChange={(e) => setLinks({ ...links, [s]: e.target.value })} /></Field>)}<button className="btn coral" onClick={addPeer}>{t('Save peer')}</button></div></div>
+    <div style={{ marginTop: 18 }}><PeerSuggestions /></div>
     {peers.map((p) => { const ps = inRange(posts.filter((x) => x.peerId === p.id), r); const st = sentimentStats(ps); return (
       <div className="card" key={p.id} style={{ marginTop: 18 }}><div className="head" style={{ marginBottom: 6 }}><h2>{p.name}</h2><div className="row"><span className="tag">{ps.length} {t('Mentions')}</span><span className="tag positive">{st.pos}%</span><span className="tag negative">{st.neg}%</span><button className="btn ghost small" onClick={() => backend.remove(wsId, 'peers', p.id)}>{t('Delete')}</button></div></div>
         <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>{Object.entries(p.links).filter(([, u]) => u).map(([k, u]) => <a key={k} href={u} target="_blank" rel="noreferrer" style={{ marginInlineEnd: 12 }}>{k}</a>)}</div>
@@ -223,6 +231,7 @@ export function Reports() {
   const top = [...name].sort((a, b) => b.reach - a.reach).slice(0, 6)
   const period = `${new Date(Date.now() - r * DAY).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en', { month: 'short', day: 'numeric' })} – ${new Date().toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en', { month: 'short', day: 'numeric', year: 'numeric' })}`
   const pdf = async () => {
+    if (!can.pdf(profile?.plan)) { setErr(t('PDF reports are in Pro and Business.')); return }
     const el = document.getElementById('report'); if (!el) return
     setBusy(true); setErr('')
     try { await downloadPdf(el, `lens-report-${new Date().toISOString().slice(0, 10)}.pdf`) } catch (e) { console.error(e); setErr(t('Could not build the PDF.')) }
