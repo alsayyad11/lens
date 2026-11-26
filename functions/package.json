@@ -1,0 +1,9 @@
+{
+  "name": "lens-functions",
+  "private": true,
+  "main": "lib/index.js",
+  "engines": { "node": "20" },
+  "scripts": { "build": "tsc", "test": "tsc && node lib/test.js" },
+  "dependencies": { "fast-xml-parser": "^4.5.0", "firebase-admin": "^12.6.0", "firebase-functions": "^6.1.0" },
+  "devDependencies": { "@types/node": "^20.14.0", "typescript": "^5.5.0" }
+}

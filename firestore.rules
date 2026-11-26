@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // memberships/{email} says which workspace an invited person belongs to, and with which role.
+    match /memberships/{email} {
+      allow read: if request.auth != null && (request.auth.token.email.lower() == email || resource.data.ownerUid == request.auth.uid);
+      allow create: if request.auth != null && request.resource.data.ownerUid == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+    }
+
+    match /users/{ws} {
+      function isOwner() { return request.auth != null && request.auth.uid == ws; }
+      function mem() { return get(/databases/$(database)/documents/memberships/$(request.auth.token.email.lower())).data; }
+      function isMember() { return request.auth != null && exists(/databases/$(database)/documents/memberships/$(request.auth.token.email.lower())) && mem().ownerUid == ws; }
+      function isAdmin() { return isOwner() || (isMember() && mem().role == 'admin'); }
+      function canWrite() { return isOwner() || (isMember() && mem().role in ['admin', 'analyst']); }
+
+      allow read: if isOwner() || isMember();
+      allow write: if isAdmin();
+
+      // Source tokens: owner and admins only.
+      match /private/{doc} { allow read, write: if isAdmin(); }
+      // Team list: everyone in the workspace reads it; admins manage it; a member can mark their own entry active.
+      match /members/{id} {
+        allow read: if isOwner() || isMember();
+        allow create, delete: if isAdmin();
+        allow update: if isAdmin() || (isMember() && resource.data.email.lower() == request.auth.token.email.lower());
+      }
+      match /posts/{id} { allow read: if isOwner() || isMember(); allow write: if canWrite(); }
+      match /peers/{id} { allow read: if isOwner() || isMember(); allow write: if canWrite(); }
+      match /alerts/{id} { allow read: if isOwner() || isMember(); allow write: if canWrite(); }
+      match /pages/{id} { allow read: if isOwner() || isMember(); allow write: if canWrite(); }
+    }
+  }
+}
