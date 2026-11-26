@@ -28,7 +28,7 @@ export default function Setup() {
     <div className="auth"><div className="auth-art"><GridPattern seed={5} /><Logo height={40} /><div><h1 style={{ fontSize: 40 }}>{titles[step]}</h1></div><ul><li><b>1 / 3</b>{t('Name Lens')}</li><li><b>2 / 3</b>{t('Field Lens')}</li><li><b>3 / 3</b>{t('Peer Lens')}</li></ul></div>
       <div className="auth-main">
         <div className="progress"><i style={{ width: 50 + (step + 1) * 16 + '%' }} /></div>
-        {step === 0 && (<><h1>{titles[0]}</h1><p className="muted" style={{ margin: '8px 0 20px' }}>{t('Names and handles Scoop360 listens for')}</p>
+        {step === 0 && (<><h1>{titles[0]}</h1><p className="muted" style={{ margin: '8px 0 20px' }}>{t('Names and handles LENS listens for')}</p>
           <Field label={indiv ? t('Your public name') : t('Company name')}><div style={{ display: 'flex', gap: 8 }}><input value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && add(handles, setHandles)} placeholder="@handle, brand, product" /><button className="btn" onClick={() => add(handles, setHandles)}>{t('Add')}</button></div></Field>
           <Chips items={handles} onRemove={(s) => setHandles(handles.filter((h) => h !== s))} /></>)}
         {step === 1 && (<><h1>{titles[1]}</h1><p className="muted" style={{ margin: '8px 0 20px' }}>{t('Topics, keywords and hashtags you follow')}</p>

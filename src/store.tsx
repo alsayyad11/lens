@@ -6,7 +6,7 @@ import { EMPTY_AI, EMPTY_SOURCES, type AiSettings, type AlertRule, type Member, 
 interface Ctx {
   user: AuthUser | null; ready: boolean; profile: Profile | null; posts: Post[]; peers: Peer[]; alerts: AlertRule[]; members: Member[]; pages: OwnPage[]
   sources: SourcesConfig; ai: AiSettings; wsId: string; role: Role; canWrite: boolean; canAdmin: boolean; myName: string
-  lang: 'en' | 'ar'; setLang: (l: 'en' | 'ar') => void; t: (s: string) => string
+  lang: 'en' | 'ar'; setLang: (l: 'en' | 'ar') => void; theme: 'light' | 'dark'; setTheme: (t: 'light' | 'dark') => void; t: (s: string) => string
   saveProfile: (p: Partial<Profile>) => Promise<void>; setUser: (u: AuthUser | null) => void
 }
 const C = createContext<Ctx>(null as any)
@@ -23,6 +23,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<'en' | 'ar'>((localStorage.getItem('lens-lang') as any) || 'en')
 
   const setLang = (l: 'en' | 'ar') => { setLangState(l); localStorage.setItem('lens-lang', l) }
+  const [theme, setThemeState] = useState<'light' | 'dark'>(() => (localStorage.getItem('lens-theme') as any) || (window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'))
+  useEffect(() => { document.documentElement.dataset.theme = theme }, [theme])
+  const setTheme = (t: 'light' | 'dark') => { setThemeState(t); localStorage.setItem('lens-theme', t) }
   useEffect(() => { document.documentElement.lang = lang; document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr' }, [lang])
 
   useEffect(() => backend.onAuth((u) => {
@@ -54,5 +57,5 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const saveProfile = async (p: Partial<Profile>) => { if (!wsId) return; await backend.setProfile(wsId, p); setProfile((old) => ({ ...(old as Profile), ...p })) }
   const t = useMemo(() => (s: string) => (lang === 'ar' ? AR[s] || s : s), [lang])
   const canWrite = role !== 'viewer', canAdmin = role === 'owner' || role === 'admin'
-  return <C.Provider value={{ user, ready, profile, posts, peers, alerts, members, pages, sources, ai, wsId, role, canWrite, canAdmin, myName, lang, setLang, t, saveProfile, setUser }}>{children}</C.Provider>
+  return <C.Provider value={{ user, ready, profile, posts, peers, alerts, members, pages, sources, ai, wsId, role, canWrite, canAdmin, myName, lang, setLang, theme, setTheme, t, saveProfile, setUser }}>{children}</C.Provider>
 }

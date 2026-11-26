@@ -10,11 +10,11 @@ import type { Post } from './types'
 import { ago, fmt } from './nlp'
 import { useApp } from './store'
 
-/** Scoop360 logo. Arabic lockup in Arabic, English otherwise; reversed (white) version on navy. */
+/** LENS logo. Arabic lockup in Arabic, English otherwise; reversed (white) version on navy. */
 export const Logo = ({ light = true, mark = false, height = 34 }: { light?: boolean; mark?: boolean; height?: number }) => {
   const { lang } = useApp()
   const src = mark ? (light ? markLight : markDark) : lang === 'ar' ? (light ? arLogoRev : arLogo) : light ? enLogoRev : enLogo
-  return <img className="brandlogo" src={src} height={height} alt="Scoop360" />
+  return <img className="brandlogo" src={src} height={height} alt="LENS" />
 }
 export const logoDark = { en: enLogo, ar: arLogo }
 
@@ -25,19 +25,15 @@ export const TwoWeight = ({ text }: { text: string }) => {
   return <><b>{text.slice(0, i)}</b>{' '}<span className="lt">{text.slice(i + 1)}</span></>
 }
 
-/** Connected dots: posts, accounts and the links between them. Mostly teal, a few orange. Decorative, navy backgrounds only. */
-export const GridPattern = ({ seed = 7, n = 26 }: { seed?: number; n?: number }) => {
-  let x = seed * 9301 + 49297; const rnd = () => ((x = (x * 9301 + 49297) % 233280) / 233280)
-  const pts = Array.from({ length: n }, () => ({ x: 4 + rnd() * 92, y: 4 + rnd() * 92, o: rnd() > 0.88 }))
-  const lines: [number, number][] = []
-  pts.forEach((a, i) => pts.forEach((b, j) => { if (j > i && Math.hypot(a.x - b.x, a.y - b.y) < 20) lines.push([i, j]) }))
-  return (
-    <svg className="gridpat" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      {lines.map(([i, j]) => <line key={i + '-' + j} x1={pts[i].x} y1={pts[i].y} x2={pts[j].x} y2={pts[j].y} stroke="#2EC4B6" strokeOpacity=".16" strokeWidth=".25" />)}
-      {pts.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r={p.o ? 1.1 : 0.7} fill={p.o ? '#FF6B35' : '#2EC4B6'} fillOpacity={p.o ? 0.9 : 0.5} />)}
-    </svg>
-  )
-}
+/** Focus field: fine concentric arcs from the symbol's centre with one glowing focal point. Dark backgrounds and covers only, low density. */
+export const FocusField = ({ cx = 78, cy = 30, rings = 11 }: { cx?: number; cy?: number; rings?: number; seed?: number; n?: number }) => (
+  <svg className="focusfield" viewBox="0 0 100 100" preserveAspectRatio="xMaxYMin slice" aria-hidden="true">
+    <defs><radialGradient id="ffg"><stop offset="0" stopColor="#38C6FF" stopOpacity=".9" /><stop offset="1" stopColor="#38C6FF" stopOpacity="0" /></radialGradient></defs>
+    {Array.from({ length: rings }, (_, i) => { const r = 9 + i * 8.5; return <path key={i} d={`M${cx - r} ${cy} A${r} ${r} 0 0 0 ${cx} ${cy + r}`} fill="none" stroke="#38C6FF" strokeWidth=".18" strokeOpacity={Math.max(0.05, 0.32 - i * 0.027)} /> })}
+    <circle cx={cx} cy={cy} r="7" fill="url(#ffg)" opacity=".35" /><circle cx={cx} cy={cy} r="1.3" fill="#38C6FF" />
+  </svg>
+)
+export const GridPattern = FocusField
 export const Field = ({ label, children, error }: { label: string; children: ReactNode; error?: string }) => (
   <div className="field"><label>{label}</label>{children}{error && <div className="err" style={{ margin: '2px 0 0' }}>{error}</div>}</div>
 )
@@ -69,7 +65,7 @@ export const SentimentBars = ({ posts, days = 7 }: { posts: Post[]; days?: numbe
 export const Meter = ({ label, value, color = 'var(--navy)' }: { label: string; value: number; color?: string }) => (
   <div><div className="row2"><span>{label}</span><b>{value}%</b></div><div className="meter"><i style={{ width: value + '%', background: color }} /></div></div>
 )
-export const Empty = () => { const { t } = useApp(); return <div className="empty"><h2>{t('No posts yet')}</h2><p>{t('Add posts or load demo data to see Scoop360 work.')}</p></div> }
+export const Empty = () => { const { t } = useApp(); return <div className="empty"><h2>{t('No posts yet')}</h2><p>{t('Add posts or load demo data to see LENS work.')}</p></div> }
 export const sentimentStats = (ps: Post[]) => {
   const n = ps.length || 1
   return { total: ps.length, reach: ps.reduce((a, p) => a + p.reach, 0), pos: Math.round((ps.filter((p) => p.sentiment === 'positive').length / n) * 100), neg: Math.round((ps.filter((p) => p.sentiment === 'negative').length / n) * 100) }

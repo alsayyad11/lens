@@ -113,7 +113,7 @@ function Sources() {
     <div className="card" style={{ marginBottom: 14 }}><div className="head" style={{ marginBottom: 6 }}><div><h2>{title}</h2><div className="muted" style={{ fontSize: 12 }}>{hint}</div></div><div className="row">{st(k)}<label className="pill" style={{ cursor: 'pointer' }}><input type="checkbox" style={{ width: 'auto', marginInlineEnd: 6 }} checked={on} disabled={!canAdmin} onChange={(e) => set(e.target.checked)} />{t('Enabled')}</label></div></div>{on && children}{fail(k)}</div>)
   if (!canAdmin) return <div className="card"><p className="muted">{t('Only owners and admins can manage sources.')}</p></div>
   return (<>
-    <div className="head" style={{ marginBottom: 14 }}><p className="muted" style={{ maxWidth: 620 }}>{t('Scoop360 collects from these sources every 30 minutes, and on demand. Keys are stored in your private workspace settings.')}</p><div className="row"><button className="btn ghost" disabled={c.busy} onClick={c.run}>{c.busy ? '…' : t('Collect now')}</button><button className="btn coral" onClick={save}>{saved ? '✓' : t('Save')}</button></div></div>
+    <div className="head" style={{ marginBottom: 14 }}><p className="muted" style={{ maxWidth: 620 }}>{t('LENS collects from these sources every 30 minutes, and on demand. Keys are stored in your private workspace settings.')}</p><div className="row"><button className="btn ghost" disabled={c.busy} onClick={c.run}>{c.busy ? '…' : t('Collect now')}</button><button className="btn coral" onClick={save}>{saved ? '✓' : t('Save')}</button></div></div>
     {c.msg && <div className="banner">{c.msg}</div>}
     <Row k="news" title="News (Google News)" hint={t('Searches your names, topics and peers. No key needed.')} on={cfg.news.enabled} set={(v: boolean) => setCfg({ ...cfg, news: { enabled: v } })} />
     <Row k="bing" title="News (Bing News)" hint={t('A second news index, free, no key.')} on={cfg.bing.enabled} set={(v: boolean) => setCfg({ ...cfg, bing: { enabled: v } })} />
@@ -160,7 +160,7 @@ function AiTab() {
   return (
     <div className="grid g2"><div className="card">
       <h2 style={{ marginBottom: 6 }}>{t('AI provider')}</h2>
-      <p className="muted" style={{ fontSize: 13, marginBottom: 16 }}>{t('Powers Ask Scoop360, reply drafts and the sentiment of collected posts. Pick a free provider and paste its key. Keys stay in your private workspace settings.')}</p>
+      <p className="muted" style={{ fontSize: 13, marginBottom: 16 }}>{t('Powers Ask LENS, reply drafts and the sentiment of collected posts. Pick a free provider and paste its key. Keys stay in your private workspace settings.')}</p>
       <Field label={t('Provider')}><select value={f.provider} onChange={(e) => setF({ ...f, provider: e.target.value as AiProvider })}>{PROVIDERS.map((p) => <option key={p.id} value={p.id}>{t(p.label)}</option>)}</select></Field>
       <p className="muted" style={{ fontSize: 13, margin: '-6px 0 14px' }}>{t(cur.free)} {cur.link && <a href={cur.link} target="_blank" rel="noreferrer">{t('Get a key')}</a>}</p>
       {!['none', 'keyless'].includes(f.provider) && <Field label={t('API key')}><input type="password" autoComplete="off" value={f.key} onChange={(e) => setF({ ...f, key: e.target.value })} /></Field>}
@@ -168,13 +168,13 @@ function AiTab() {
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}><button className="btn coral" onClick={save}>{t('Save')}</button><button className="btn ghost" disabled={busy || f.provider === 'none'} onClick={test}>{busy ? '…' : t('Test connection')}</button>{msg && <span className={msg.ok ? 'ok' : 'err'} style={{ margin: 0 }}>{msg.text}</span>}</div>
     </div>
     <div className="card"><h2 style={{ marginBottom: 10 }}>{t('How it is used')}</h2>
-      <p className="muted" style={{ fontSize: 13 }}>{t('If the chosen provider fails, Scoop360 tries the no-key endpoint, then falls back to built-in rules, so the chatbot always answers.')}</p></div></div>
+      <p className="muted" style={{ fontSize: 13 }}>{t('If the chosen provider fails, LENS tries the no-key endpoint, then falls back to built-in rules, so the chatbot always answers.')}</p></div></div>
   )
 }
 
 /* ---------- settings with tabs (Figma 9.1 and B6) ---------- */
 export function SettingsPage() {
-  const { t, user, profile, lang, setLang, role, canAdmin } = useApp()
+  const { t, user, profile, lang, setLang, theme, setTheme, role, canAdmin } = useApp()
   const company = profile?.accountType === 'company'
   const [tab, setTab] = useState<'account' | 'team' | 'sources' | 'ai'>('account')
   return (<>
@@ -185,8 +185,9 @@ export function SettingsPage() {
     {tab === 'account' && <div className="grid g2"><div className="card"><h2 style={{ marginBottom: 14 }}>{t('Account')}</h2>
       <table><tbody><tr><td>{t('Email')}</td><td>{user?.email}</td></tr><tr><td>{t('Workspace')}</td><td>{profile?.orgName} <span className="tag">{role}</span></td></tr>
         <tr><td>{t('Account type')}</td><td><span className="tag">{company ? 'B2B · ' + t('A company') : 'B2C · ' + t('Just me')}</span></td></tr>
-        <tr><td>{t('Language')}</td><td><button className="pill" onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}>{lang === 'en' ? 'العربية' : 'English'}</button></td></tr></tbody></table></div>
-      <div className="card"><h2 style={{ marginBottom: 8 }}>{t('Workspace')}</h2><p className="muted" style={{ marginBottom: 12 }}>{t('Add posts or load demo data to see Scoop360 work.')}</p><SeedButtons /></div></div>}
+        <tr><td>{t('Language')}</td><td><button className="pill" onClick={() => setLang(lang === 'en' ? 'ar' : 'en')}>{lang === 'en' ? 'العربية' : 'English'}</button></td></tr>
+        <tr><td>{t('Theme')}</td><td><button className="pill" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>{theme === 'dark' ? t('Light') : t('Dark')}</button></td></tr></tbody></table></div>
+      <div className="card"><h2 style={{ marginBottom: 8 }}>{t('Workspace')}</h2><p className="muted" style={{ marginBottom: 12 }}>{t('Add posts or load demo data to see LENS work.')}</p><SeedButtons /></div></div>}
     {tab === 'team' && company && <Team />}
     {tab === 'sources' && <Sources />}
     {tab === 'ai' && <AiTab />}

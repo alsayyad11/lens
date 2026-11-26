@@ -10,7 +10,7 @@ import { ICONS, Logo } from './ui'
 
 function Layout() {
   const { t, profile, user } = useApp()
-  const items: [string, string, string][] = [['/', 'Overview', 'overview'], ['/name', 'Name Lens', 'name'], ['/field', 'Field Lens', 'field'], ['/peer', 'Peer Lens', 'peer'], ['/alerts', 'Alerts', 'alerts'], ['/reports', 'Reports', 'reports'], ['/ask', 'Ask Scoop360', 'ask']]
+  const items: [string, string, string][] = [['/', 'Overview', 'overview'], ['/name', 'Name Lens', 'name'], ['/field', 'Field Lens', 'field'], ['/peer', 'Peer Lens', 'peer'], ['/alerts', 'Alerts', 'alerts'], ['/reports', 'Reports', 'reports'], ['/ask', 'Ask LENS', 'ask']]
   const ini = (s?: string) => (s || '?').split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
   return (
     <div className="shell">
